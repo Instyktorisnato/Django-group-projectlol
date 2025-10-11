@@ -1,0 +1,62 @@
+{% extends "main.html" %}
+{% load static %}
+{% block content %}
+<h2>Участники</h2>
+<p>Доступно только модерам, админам и мне </p>
+<table border="1" cellpadding="6">
+    <tr>
+        <th>Имя</th>
+        <th>Email</th>
+        <th>Роль</th>
+        <th>Активен</th>
+        <th>Действия</th>
+    </tr>
+    {% for u in users %}
+    <tr>
+        <td>{{ u.username }}</td>
+        <td>{{ u.email }}</td>
+        <td>{{ u.get_role_display }}</td>
+        <td>{% if u.is_active %}Да{% else %}Нет{% endif %}</td>
+        <td>
+            {% if request.user != u and request.user.is_authenticated %}
+
+
+                {% if request.user.is_superuser or request.user.role in allowed_roles %}
+                    <form action="{% url 'accounts:participant_action' u.id 'delete' %}" method="post" style="display:inline">
+                        {% csrf_token %}
+                        <button type="submit" onclick="return confirm('Удалить пользователя?');">Удалить</button>
+                    </form>
+
+                    {% if u.is_active %}
+                        <form action="{% url 'accounts:participant_action' u.id 'ban' %}" method="post" style="display:inline">
+                            {% csrf_token %}
+                            <button type="submit">Забанить</button>
+                        </form>
+                    {% else %}
+                        <form action="{% url 'accounts:participant_action' u.id 'unban' %}" method="post" style="display:inline">
+                            {% csrf_token %}
+                            <button type="submit">Разбанить</button>
+                        </form>
+                    {% endif %}
+                {% endif %}
+
+                {% comment %} Смена ролей — только creator или суперпользователь {% endcomment %}
+                {% if request.user.is_superuser or request.user.role == "creator" %}
+                    <form action="{% url 'accounts:change_role' u.id %}" method="post" style="display:inline">
+                        {% csrf_token %}
+                        <select name="role">
+                            <option value="helper" {% if u.role == "helper" %}selected{% endif %}>Хелпер</option>
+                            <option value="moder" {% if u.role == "moder" %}selected{% endif %}>Модер</option>
+                            <option value="admin" {% if u.role == "admin" %}selected{% endif %}>Админ</option>
+                            <option value="creator" {% if u.role == "creator" %}selected{% endif %}>Создатель</option>
+                        </select>
+                        <button type="submit">Сменить роль</button>
+                    </form>
+                {% endif %}
+
+            {% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

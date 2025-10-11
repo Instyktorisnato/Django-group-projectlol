@@ -1,20 +1,69 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Мейн Страница</title>
+    <style>
+        body { margin:0; font-family:Arial, sans-serif; }
+        header {
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            padding:10px 20px;
+            border-bottom:1px solid #ddd;
+            background:#f9f9f9;
+        }
+        nav {
+            display:flex;
+            align-items:center;
+        }
+        nav a {
+            margin-right:15px;
+            text-decoration:none;
+            color:#333;
+            font-weight:500;
+        }
+        nav a:hover { text-decoration:underline; }
+        .btn {
+            background:#007bff;
+            color:white;
+            padding:8px 12px;
+            border-radius:6px;
+            text-decoration:none;
+            font-weight:500;
+        }
+        .btn:hover { background:#0056b3; }
+        main { padding:20px; }
+    </style>
 </head>
 <body>
-    <h1>Мейн Страница</h1>
-    <p>Мы найглупейшие создания на всей Логике</p>
-    <a href="/forum">Форум</a>
-    <a href="/diary">Дневник</a>
-    <a href="/calendar">Календарь</a>
-    <a href="/polls">Опросы</a>
-    <a href="/votings">Голосования</a>
-    <a href="/materials">Материалы</a>
-    <a href="/portfolio">Портфолио</a>
-    <a href="/gallery">Галерея</a>
+    <header>
+        <div>
+            <a href="/"><strong>Логотип</strong></a>
+        </div>
+        <nav>
+            <a href="/">Главная</a>
+
+            {% if user.is_authenticated %}
+                <a href="{% url 'accounts:logout' %}">Выйти</a>
+                {% endcomment %}
+                {% if user.is_superuser or user.role == 'creator' or user.role == 'admin' or user.role == 'moder' or user.role == 'helper' %}
+                    <a href="{% url 'accounts:participants' %}" class="btn">Участники</a>
+                {% endif %}
+
+            {% else %}
+                <a href="{% url 'accounts:login' %}">Войти</a>
+            {% endif %}
+        </nav>
+    </header>
+
+    <main>
+        <h1>Мейн Страница</h1>
+        <p>Главная</p>
+
+        <hr>
+
+        {% block content %}{% endblock %}
+    </main>
 </body>
 </html>
